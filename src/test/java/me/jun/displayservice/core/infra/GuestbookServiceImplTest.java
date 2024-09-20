@@ -2,8 +2,8 @@ package me.jun.displayservice.core.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.jun.displayservice.core.application.BlogService;
-import me.jun.displayservice.core.application.dto.ArticleListResponse;
+import me.jun.displayservice.core.application.GuestbookService;
+import me.jun.displayservice.core.application.dto.PostListResponse;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -15,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
 
-import static me.jun.displayservice.support.BlogFixture.*;
+import static me.jun.displayservice.support.GuestbookFixture.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.OK;
@@ -24,10 +24,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @ActiveProfiles("test")
 @SpringBootTest
 @SuppressWarnings("deprecation")
-class BlogServiceImplTest {
+class GuestbookServiceImplTest {
 
     @Autowired
-    private BlogService blogServiceImpl;
+    private GuestbookService guestbookServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -37,7 +37,7 @@ class BlogServiceImplTest {
     @BeforeEach
     void setUp() throws IOException {
         mockWebServer = new MockWebServer();
-        mockWebServer.start(BLOG_PORT);
+        mockWebServer.start(GUESTBOOK_PORT);
     }
 
     @AfterEach
@@ -46,21 +46,21 @@ class BlogServiceImplTest {
     }
 
     @Test
-    void retrieveArticleListTest() throws JsonProcessingException {
-        ArticleListResponse expected = articleListResponse();
-        String content = objectMapper.writeValueAsString(articleListResponse());
+    void retrievePostListTest() throws JsonProcessingException {
+        PostListResponse expected = postListResponse();
+        String content = objectMapper.writeValueAsString(postListResponse());
 
         MockResponse mockResponse = new MockResponse()
                 .setResponseCode(OK.value())
                 .setHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .setBody(content);
 
-        mockWebServer.url(BLOG_BASE_URL);
+        mockWebServer.url(GUESTBOOK_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
-        ArticleListResponse articleListResponse = blogServiceImpl.retrieveArticleList(0, 10).block();
+        PostListResponse postListResponse = guestbookServiceImpl.retrievePostList(0, 10).block();
 
-        assertThat(articleListResponse)
+        assertThat(postListResponse)
                 .isEqualToComparingFieldByField(expected);
     }
 }

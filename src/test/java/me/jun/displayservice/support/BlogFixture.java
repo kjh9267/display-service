@@ -21,9 +21,9 @@ abstract public class BlogFixture {
 
     public static final Long ARTICLE_ID = 1L;
 
-    public static final String TITLE = "title string";
+    public static final String ARTICLE_TITLE = "title string";
 
-    public static final String CONTENT = "content string";
+    public static final String ARTICLE_CONTENT = "content string";
 
     public static final Instant CREATED_AT = now();
 
@@ -32,8 +32,8 @@ abstract public class BlogFixture {
     public static ArticleResponse articleResponse() {
         return ArticleResponse.builder()
                 .articleId(ARTICLE_ID)
-                .title(TITLE)
-                .content(CONTENT)
+                .title(ARTICLE_TITLE)
+                .content(ARTICLE_CONTENT)
                 .createdAt(CREATED_AT)
                 .updatedAt(UPDATED_AT)
                 .build();

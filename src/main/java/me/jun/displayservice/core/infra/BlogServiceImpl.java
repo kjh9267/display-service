@@ -27,10 +27,10 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public Mono<ArticleListResponse> retrieveArticleList(int page, int size) {
         return blogWebClient.get()
-                .uri(blogArticleUri + "?page=" + page + "&size=" + size)
+                .uri(String.format("%s?page=%s&size=%s", blogArticleUri, page, size))
                 .retrieve()
                 .bodyToMono(ArticleListResponse.class)
                 .log()
-                .doOnError(throwable -> log.error("{}", throwable.getMessage()));
+                .doOnError(throwable -> log.error("{}", throwable));
     }
 }
