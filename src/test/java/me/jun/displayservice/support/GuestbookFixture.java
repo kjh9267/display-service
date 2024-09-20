@@ -20,9 +20,9 @@ abstract public class GuestbookFixture {
 
     public static final int GUESTBOOK_PORT = 8081;
 
-    public static final int GUESTBOOK_PAGE = 0;
+    public static final int GUESTBOOK_POST_PAGE = 0;
 
-    public static final int GUESTBOOK_SIZE = 10;
+    public static final int GUESTBOOK_POST_SIZE = 10;
 
     public static final Long POST_ID = 1L;
 
@@ -63,8 +63,8 @@ abstract public class GuestbookFixture {
 
     public static PostRequest postRequest() {
         return PostRequest.builder()
-                .page(GUESTBOOK_PAGE)
-                .size(GUESTBOOK_SIZE)
+                .page(GUESTBOOK_POST_PAGE)
+                .size(GUESTBOOK_POST_SIZE)
                 .build();
     }
 }

@@ -11,4 +11,11 @@ public class ArticleRequest {
     int page;
 
     int size;
+
+    public static ArticleRequest of(int page, int size) {
+        return ArticleRequest.builder()
+                .page(page)
+                .size(size)
+                .build();
+    }
 }

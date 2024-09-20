@@ -7,6 +7,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
+@EqualsAndHashCode
 @Builder
 @Getter
 public class PostListResponse {

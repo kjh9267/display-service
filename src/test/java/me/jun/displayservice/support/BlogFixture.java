@@ -20,9 +20,9 @@ abstract public class BlogFixture {
 
     public static final int BLOG_PORT = 8082;
 
-    public static final int ARTICLE_PAGE = 0;
+    public static final int BLOG_ARTICLE_PAGE = 0;
 
-    public static final int ARTICLE_SIZE = 10;
+    public static final int BLOG_ARTICLE_SIZE = 10;
 
     public static final Long ARTICLE_ID = 1L;
 
@@ -60,8 +60,8 @@ abstract public class BlogFixture {
 
     public static ArticleRequest articleRequest() {
         return ArticleRequest.builder()
-                .page(ARTICLE_PAGE)
-                .size(ARTICLE_SIZE)
+                .page(BLOG_ARTICLE_PAGE)
+                .size(BLOG_ARTICLE_SIZE)
                 .build();
     }
 }

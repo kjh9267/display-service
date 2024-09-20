@@ -11,4 +11,11 @@ public class PostRequest {
     private int page;
 
     private int size;
+
+    public static PostRequest of(int page, int size) {
+        return PostRequest.builder()
+                .page(page)
+                .size(size)
+                .build();
+    }
 }
