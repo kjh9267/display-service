@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -42,6 +43,7 @@ public class DisplayController {
                                 .build()
                 )
                         .log()
+                        .publishOn(Schedulers.boundedElastic())
                         .doOnError(throwable -> log.error("{}", throwable))
         )
                 .log()
