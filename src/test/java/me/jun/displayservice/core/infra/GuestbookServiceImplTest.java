@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
@@ -58,7 +59,7 @@ class GuestbookServiceImplTest {
         mockWebServer.url(GUESTBOOK_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
-        PostListResponse postListResponse = guestbookServiceImpl.retrievePostList(0, 10).block();
+        PostListResponse postListResponse = guestbookServiceImpl.retrievePostList(Mono.just(postRequest())).block();
 
         assertThat(postListResponse)
                 .isEqualToComparingFieldByField(expected);

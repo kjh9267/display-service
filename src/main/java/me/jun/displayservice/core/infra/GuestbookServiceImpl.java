@@ -3,6 +3,7 @@ package me.jun.displayservice.core.infra;
 import lombok.extern.slf4j.Slf4j;
 import me.jun.displayservice.core.application.GuestbookService;
 import me.jun.displayservice.core.application.dto.PostListResponse;
+import me.jun.displayservice.core.application.dto.PostRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,12 +25,14 @@ public class GuestbookServiceImpl implements GuestbookService {
     }
 
     @Override
-    public Mono<PostListResponse> retrievePostList(int page, int size) {
-        return guestbookWebClient.get()
-                .uri(String.format("%s?page=%s&size=%s", guestbookPostUri, page, size))
-                .retrieve()
-                .bodyToMono(PostListResponse.class)
-                .log()
-                .doOnError(throwable -> log.error("{}", throwable));
+    public Mono<PostListResponse> retrievePostList(Mono<PostRequest> requestMono) {
+        return requestMono.flatMap(
+                request -> guestbookWebClient.get()
+                        .uri(String.format("%s?page=%s&size=%s", guestbookPostUri, request.getPage(), request.getSize()))
+                        .retrieve()
+                        .bodyToMono(PostListResponse.class)
+                        .log()
+                        .doOnError(throwable -> log.error("{}", throwable))
+        );
     }
 }

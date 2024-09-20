@@ -3,6 +3,7 @@ package me.jun.displayservice.support;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import me.jun.displayservice.core.application.dto.PostListResponse;
+import me.jun.displayservice.core.application.dto.PostRequest;
 import me.jun.displayservice.core.application.dto.PostResponse;
 
 import java.time.Instant;
@@ -18,6 +19,10 @@ abstract public class GuestbookFixture {
     public static final String GUESTBOOK_BASE_URL = "http://127.0.0.1";
 
     public static final int GUESTBOOK_PORT = 8081;
+
+    public static final int GUESTBOOK_PAGE = 0;
+
+    public static final int GUESTBOOK_SIZE = 10;
 
     public static final Long POST_ID = 1L;
 
@@ -54,5 +59,12 @@ abstract public class GuestbookFixture {
 
     public static PostListResponse postListResponse() {
         return PostListResponse.of(postResponseList());
+    }
+
+    public static PostRequest postRequest() {
+        return PostRequest.builder()
+                .page(GUESTBOOK_PAGE)
+                .size(GUESTBOOK_SIZE)
+                .build();
     }
 }

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
@@ -58,7 +59,7 @@ class BlogServiceImplTest {
         mockWebServer.url(BLOG_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
-        ArticleListResponse articleListResponse = blogServiceImpl.retrieveArticleList(0, 10).block();
+        ArticleListResponse articleListResponse = blogServiceImpl.retrieveArticleList(Mono.just(articleRequest())).block();
 
         assertThat(articleListResponse)
                 .isEqualToComparingFieldByField(expected);

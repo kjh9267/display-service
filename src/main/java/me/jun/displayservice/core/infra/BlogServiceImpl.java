@@ -3,6 +3,7 @@ package me.jun.displayservice.core.infra;
 import lombok.extern.slf4j.Slf4j;
 import me.jun.displayservice.core.application.BlogService;
 import me.jun.displayservice.core.application.dto.ArticleListResponse;
+import me.jun.displayservice.core.application.dto.ArticleRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -25,12 +26,14 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Mono<ArticleListResponse> retrieveArticleList(int page, int size) {
-        return blogWebClient.get()
-                .uri(String.format("%s?page=%s&size=%s", blogArticleUri, page, size))
-                .retrieve()
-                .bodyToMono(ArticleListResponse.class)
-                .log()
-                .doOnError(throwable -> log.error("{}", throwable));
+    public Mono<ArticleListResponse> retrieveArticleList(Mono<ArticleRequest> requestMono) {
+        return requestMono.flatMap(
+                request -> blogWebClient.get()
+                        .uri(String.format("%s?page=%s&size=%s", blogArticleUri, request.getPage(), request.getSize()))
+                        .retrieve()
+                        .bodyToMono(ArticleListResponse.class)
+                        .log()
+                        .doOnError(throwable -> log.error("{}", throwable))
+        );
     }
 }
