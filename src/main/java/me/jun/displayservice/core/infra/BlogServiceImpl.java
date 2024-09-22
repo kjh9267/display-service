@@ -31,9 +31,9 @@ public class BlogServiceImpl implements BlogService {
                 request -> blogWebClient.get()
                         .uri(String.format("%s?page=%s&size=%s", blogArticleUri, request.getPage(), request.getSize()))
                         .retrieve()
-                        .bodyToMono(ArticleListResponse.class)
-                        .log()
-                        .doOnError(throwable -> log.error("{}", throwable))
-        );
+                        .bodyToMono(ArticleListResponse.class).log()
+                        .doOnError(throwable -> log.error(throwable.getMessage()))
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 }

@@ -6,6 +6,11 @@ import me.jun.displayservice.core.application.dto.*;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import static reactor.core.scheduler.Schedulers.boundedElastic;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -16,35 +21,54 @@ public class DisplayService {
     private final GuestbookService guestbookServiceImpl;
 
     public Mono<DisplayResponse> retrieveDisplay(Mono<DisplayRequest> requestMono) {
-        return requestMono.log()
-                .map(
-                        request -> {
-                            Mono<ArticleRequest> articleRequestMono = Mono.fromSupplier(
-                                            () -> ArticleRequest.of(request.getBlogArticlePage(), request.getBlogArticleSize())
-                                    )
-                                    .log()
-                                    .doOnError(throwable -> log.error("{}", throwable));
+        return requestMono.map(
+                request -> {
+                    Mono<ArticleRequest> articleRequestMono = createArticleRequestMono(request);
+                    Mono<PostRequest> postRequestMono = createPostRequestMono(request);
 
-                            ArticleListResponse articleListResponse = blogServiceImpl.retrieveArticleList(
-                                            articleRequestMono
-                                    )
-                                    .log()
-                                    .block();
+                    Mono<ArticleListResponse> articleListResponseMono = blogServiceImpl.retrieveArticleList(articleRequestMono).log()
+                            .doOnError(throwable -> log.error(throwable.getMessage()));
 
-                            Mono<PostRequest> postRequestMono = Mono.fromSupplier(
-                                            () -> PostRequest.of(request.getGuestbookPostPage(), request.getGuestbookPostSize())
-                                    )
-                                    .log()
-                                    .doOnError(throwable -> log.error("{}", throwable));
+                    Mono<PostListResponse> postListResponseMono = guestbookServiceImpl.retrievePostList(postRequestMono).log()
+                            .doOnError(throwable -> log.error(throwable.getMessage()));
 
-                            PostListResponse postListResponse = guestbookServiceImpl.retrievePostList(postRequestMono)
-                                    .log()
-                                    .block();
+                    CompletableFuture<ArticleListResponse> articleListResponseFuture = CompletableFuture.supplyAsync(
+                            () -> articleListResponseMono.block()
+                    );
 
-                            return DisplayResponse.of(articleListResponse, postListResponse);
-                        }
-                )
-                .log()
-                .doOnError(throwable -> log.error("{}", throwable));
+                    CompletableFuture<PostListResponse> postListResponseFuture = CompletableFuture.supplyAsync(
+                            () -> postListResponseMono.block()
+                    );
+
+                    ArticleListResponse articleListResponse;
+                    PostListResponse postListResponse;
+
+                    try {
+                        articleListResponse = articleListResponseFuture.get();
+                        postListResponse = postListResponseFuture.get();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } catch (ExecutionException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    return DisplayResponse.of(articleListResponse, postListResponse);
+                }
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
+    }
+
+    private static Mono<ArticleRequest> createArticleRequestMono(DisplayRequest request) {
+        return Mono.fromSupplier(
+                        () -> ArticleRequest.of(request.getBlogArticlePage(), request.getBlogArticleSize())
+                ).log()
+                .publishOn(boundedElastic()).log();
+    }
+
+    private static Mono<PostRequest> createPostRequestMono(DisplayRequest request) {
+        return Mono.fromSupplier(
+                        () -> PostRequest.of(request.getGuestbookPostPage(), request.getGuestbookPostSize())
+                ).log()
+                .publishOn(boundedElastic()).log();
     }
 }
