@@ -33,24 +33,21 @@ public class DisplayController {
             @RequestParam("guestbookPostPage") int guestbookPostPage,
             @RequestParam("guestbookPostSize") int guestbookPostSize
     ) {
-        return displayService.retrieveDisplay(
-                Mono.fromSupplier(
-                        () -> DisplayRequest.builder()
-                                .blogArticlePage(blogArticlePage)
-                                .blogArticleSize(blogArticleSize)
-                                .guestbookPostPage(guestbookPostPage)
-                                .guestbookPostSize(guestbookPostSize)
-                                .build()
-                )
-                        .log()
-                        .publishOn(Schedulers.boundedElastic())
-                        .doOnError(throwable -> log.error("{}", throwable))
-        )
-                .log()
+        Mono<DisplayRequest> requestMono = Mono.fromSupplier(
+                () -> DisplayRequest.builder()
+                        .blogArticlePage(blogArticlePage)
+                        .blogArticleSize(blogArticleSize)
+                        .guestbookPostPage(guestbookPostPage)
+                        .guestbookPostSize(guestbookPostSize)
+                        .build()
+                ).log()
+                .publishOn(Schedulers.boundedElastic()).log();
+
+        return displayService.retrieveDisplay(requestMono).log()
                 .map(
                         response -> ResponseEntity.ok()
                                 .body(response)
-                )
-                .doOnError(throwable -> log.error("{}", throwable));
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 }

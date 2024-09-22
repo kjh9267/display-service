@@ -30,9 +30,9 @@ public class GuestbookServiceImpl implements GuestbookService {
                 request -> guestbookWebClient.get()
                         .uri(String.format("%s?page=%s&size=%s", guestbookPostUri, request.getPage(), request.getSize()))
                         .retrieve()
-                        .bodyToMono(PostListResponse.class)
-                        .log()
-                        .doOnError(throwable -> log.error("{}", throwable))
-        );
+                        .bodyToMono(PostListResponse.class).log()
+                        .doOnError(throwable -> log.error(throwable.getMessage()))
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 }
