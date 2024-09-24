@@ -23,7 +23,7 @@ import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(properties = "spring.cloud.config.enabled=false")
 @SuppressWarnings("deprecation")
 class GuestbookServiceImplTest {
 
