@@ -9,31 +9,33 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
 @Slf4j
 @Component
 public class BlogServiceImpl implements BlogService {
 
-    private final WebClient blogWebClient;
+    private final WebClient.Builder blogWebClientBuilder;
 
     private final String blogArticleUri;
 
     public BlogServiceImpl(
-            WebClient blogWebClient,
+            WebClient.Builder blogWebClientBuilder,
             @Value("#{${blog-article-uri}}") String blogArticleUri
     ) {
-        this.blogWebClient = blogWebClient;
+        this.blogWebClientBuilder = blogWebClientBuilder;
         this.blogArticleUri = blogArticleUri;
     }
 
     @Override
     public Mono<ArticleListResponse> retrieveArticleList(Mono<ArticleRequest> requestMono) {
         return requestMono.flatMap(
-                request -> blogWebClient.get()
+                request -> blogWebClientBuilder.build()
+                        .get()
                         .uri(String.format("%s?page=%s&size=%s", blogArticleUri, request.getPage(), request.getSize()))
+                        .accept(APPLICATION_JSON)
                         .retrieve()
-                        .bodyToMono(ArticleListResponse.class).log()
-                        .doOnError(throwable -> log.error(throwable.getMessage()))
-                ).log()
-                .doOnError(throwable -> log.error(throwable.getMessage()));
+                        .bodyToMono(ArticleListResponse.class)
+                );
     }
 }
