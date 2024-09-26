@@ -25,12 +25,8 @@ public class DisplayService {
                 request -> {
                     Mono<ArticleRequest> articleRequestMono = createArticleRequestMono(request);
                     Mono<PostRequest> postRequestMono = createPostRequestMono(request);
-
-                    Mono<ArticleListResponse> articleListResponseMono = blogServiceImpl.retrieveArticleList(articleRequestMono).log()
-                            .doOnError(throwable -> log.error(throwable.getMessage()));
-
-                    Mono<PostListResponse> postListResponseMono = guestbookServiceImpl.retrievePostList(postRequestMono).log()
-                            .doOnError(throwable -> log.error(throwable.getMessage()));
+                    Mono<ArticleListResponse> articleListResponseMono = blogServiceImpl.retrieveArticleList(articleRequestMono).log();
+                    Mono<PostListResponse> postListResponseMono = guestbookServiceImpl.retrievePostList(postRequestMono).log();
 
                     CompletableFuture<ArticleListResponse> articleListResponseFuture = CompletableFuture.supplyAsync(
                             () -> articleListResponseMono.block()
@@ -54,8 +50,7 @@ public class DisplayService {
 
                     return DisplayResponse.of(articleListResponse, postListResponse);
                 }
-                ).log()
-                .doOnError(throwable -> log.error(throwable.getMessage()));
+                );
     }
 
     private static Mono<ArticleRequest> createArticleRequestMono(DisplayRequest request) {

@@ -21,7 +21,8 @@ public class GuestbookServiceImpl implements GuestbookService {
 
     public GuestbookServiceImpl(
             WebClient.Builder guestbookWebClientBuilder,
-            @Value("#{${guestbook-post-uri}}") String guestbookPostUri) {
+            @Value("#{${guestbook-post-uri}}") String guestbookPostUri
+    ) {
         this.guestbookWebClientBuilder = guestbookWebClientBuilder;
         this.guestbookPostUri = guestbookPostUri;
     }
@@ -31,7 +32,7 @@ public class GuestbookServiceImpl implements GuestbookService {
         return requestMono.flatMap(
                 request -> guestbookWebClientBuilder.build()
                         .get()
-                        .uri(String.format("%s?page=%s&size=%s", guestbookPostUri, request.getPage(), request.getSize()))
+                        .uri(String.format(guestbookPostUri, request.getPage(), request.getSize()))
                         .accept(APPLICATION_JSON)
                         .retrieve()
                         .bodyToMono(PostListResponse.class)

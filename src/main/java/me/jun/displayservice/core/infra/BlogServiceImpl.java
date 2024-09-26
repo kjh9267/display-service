@@ -32,7 +32,7 @@ public class BlogServiceImpl implements BlogService {
         return requestMono.flatMap(
                 request -> blogWebClientBuilder.build()
                         .get()
-                        .uri(String.format("%s?page=%s&size=%s", blogArticleUri, request.getPage(), request.getSize()))
+                        .uri(String.format(blogArticleUri, request.getPage(), request.getSize()))
                         .accept(APPLICATION_JSON)
                         .retrieve()
                         .bodyToMono(ArticleListResponse.class)
