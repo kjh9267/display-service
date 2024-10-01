@@ -12,11 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import reactor.core.publisher.Mono;
+import redis.embedded.RedisServer;
 
 import java.io.IOException;
 
 import static me.jun.displayservice.support.BlogFixture.*;
+import static me.jun.displayservice.support.DisplayFixture.REDIS_PORT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.OK;
@@ -35,15 +36,21 @@ class BlogServiceImplTest {
 
     private MockWebServer mockWebServer;
 
+    private RedisServer redisServer;
+
     @BeforeEach
     void setUp() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start(BLOG_PORT);
+
+        redisServer = new RedisServer(REDIS_PORT);
+        redisServer.start();
     }
 
     @AfterEach
     void tearDown() throws IOException {
         mockWebServer.shutdown();
+        redisServer.stop();
     }
 
     @Test
@@ -59,7 +66,7 @@ class BlogServiceImplTest {
         mockWebServer.url(BLOG_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
-        ArticleListResponse articleListResponse = blogServiceImpl.retrieveArticleList(Mono.just(articleRequest())).block();
+        ArticleListResponse articleListResponse = blogServiceImpl.retrieveArticleList(articleRequest());
 
         assertThat(articleListResponse)
                 .isEqualToComparingFieldByField(expected);

@@ -16,11 +16,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import redis.embedded.RedisServer;
 
 import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static me.jun.displayservice.support.BlogFixture.*;
+import static me.jun.displayservice.support.DisplayFixture.REDIS_PORT;
 import static me.jun.displayservice.support.GuestbookFixture.*;
 import static org.hamcrest.Matchers.hasKey;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -46,6 +48,8 @@ public class DisplayIntegrationTest {
 
     private MockWebServer guestbookMockWebServer;
 
+    private RedisServer redisServer;
+
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
@@ -56,12 +60,15 @@ public class DisplayIntegrationTest {
         blogMockWebServer.start(BLOG_PORT);
         guestbookMockWebServer = new MockWebServer();
         guestbookMockWebServer.start(GUESTBOOK_PORT);
+        redisServer = new RedisServer(REDIS_PORT);
+        redisServer.start();
     }
 
     @AfterEach
     void tearDown() throws IOException {
         blogMockWebServer.shutdown();
         guestbookMockWebServer.shutdown();
+        redisServer.stop();
     }
 
     @Test

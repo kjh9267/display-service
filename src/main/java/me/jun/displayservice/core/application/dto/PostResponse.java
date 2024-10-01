@@ -2,7 +2,7 @@ package me.jun.displayservice.core.application.dto;
 
 import lombok.*;
 
-import java.time.Instant;
+import java.util.Date;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,7 +20,7 @@ public class PostResponse {
 
     private Long writerId;
 
-    private Instant createdAt;
+    private Date createdAt;
 
-    private Instant updatedAt;
+    private Date updatedAt;
 }
