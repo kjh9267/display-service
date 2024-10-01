@@ -9,8 +9,6 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static reactor.core.scheduler.Schedulers.boundedElastic;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,15 +22,14 @@ public class DisplayService {
         return requestMono.map(
                 request -> {
                     ArticleRequest articleRequest = ArticleRequest.of(request.getBlogArticlePage(), request.getBlogArticleSize());
-                    Mono<PostRequest> postRequestMono = createPostRequestMono(request);
-                    Mono<PostListResponse> postListResponseMono = guestbookServiceImpl.retrievePostList(postRequestMono).log();
+                    PostRequest postRequest = PostRequest.of(request.getGuestbookPostPage(), request.getGuestbookPostSize());
 
                     CompletableFuture<ArticleListResponse> articleListResponseFuture = CompletableFuture.supplyAsync(
                             () -> blogServiceImpl.retrieveArticleList(articleRequest)
                     );
 
                     CompletableFuture<PostListResponse> postListResponseFuture = CompletableFuture.supplyAsync(
-                            () -> postListResponseMono.block()
+                            () -> guestbookServiceImpl.retrievePostList(postRequest)
                     );
 
                     ArticleListResponse articleListResponse;
@@ -50,12 +47,5 @@ public class DisplayService {
                     return DisplayResponse.of(articleListResponse, postListResponse);
                 }
                 );
-    }
-
-    private static Mono<PostRequest> createPostRequestMono(DisplayRequest request) {
-        return Mono.fromSupplier(
-                        () -> PostRequest.of(request.getGuestbookPostPage(), request.getGuestbookPostSize())
-                ).log()
-                .publishOn(boundedElastic()).log();
     }
 }

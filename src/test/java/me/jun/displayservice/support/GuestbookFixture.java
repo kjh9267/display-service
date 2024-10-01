@@ -6,7 +6,7 @@ import me.jun.displayservice.core.application.dto.PostListResponse;
 import me.jun.displayservice.core.application.dto.PostRequest;
 import me.jun.displayservice.core.application.dto.PostResponse;
 
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -32,9 +32,9 @@ abstract public class GuestbookFixture {
 
     public static final Long POST_WRITER_ID = 1L;
 
-    public static final Instant CREATED_AT = now();
+    public static final Date CREATED_AT = Date.from(now());
 
-    public static final Instant UPDATED_AT = now();
+    public static final Date UPDATED_AT = Date.from(now());
 
     public static PostResponse postResponse() {
         return PostResponse.builder()

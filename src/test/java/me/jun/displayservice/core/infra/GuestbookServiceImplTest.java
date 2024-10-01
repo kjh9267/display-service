@@ -12,10 +12,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import reactor.core.publisher.Mono;
+import redis.embedded.RedisServer;
 
 import java.io.IOException;
 
+import static me.jun.displayservice.support.DisplayFixture.REDIS_PORT;
 import static me.jun.displayservice.support.GuestbookFixture.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -35,15 +36,20 @@ class GuestbookServiceImplTest {
 
     private MockWebServer mockWebServer;
 
+    private RedisServer redisServer;
+
     @BeforeEach
     void setUp() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start(GUESTBOOK_PORT);
+        redisServer = new RedisServer(REDIS_PORT);
+        redisServer.start();
     }
 
     @AfterEach
     void tearDown() throws IOException {
         mockWebServer.shutdown();
+        redisServer.stop();
     }
 
     @Test
@@ -59,7 +65,7 @@ class GuestbookServiceImplTest {
         mockWebServer.url(GUESTBOOK_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
-        PostListResponse postListResponse = guestbookServiceImpl.retrievePostList(Mono.just(postRequest())).block();
+        PostListResponse postListResponse = guestbookServiceImpl.retrievePostList(postRequest());
 
         assertThat(postListResponse)
                 .isEqualToComparingFieldByField(expected);
