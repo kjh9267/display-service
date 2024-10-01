@@ -18,4 +18,9 @@ public class ArticleRequest {
                 .size(size)
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s", page, size);
+    }
 }

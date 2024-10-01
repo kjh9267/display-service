@@ -23,13 +23,12 @@ public class DisplayService {
     public Mono<DisplayResponse> retrieveDisplay(Mono<DisplayRequest> requestMono) {
         return requestMono.map(
                 request -> {
-                    Mono<ArticleRequest> articleRequestMono = createArticleRequestMono(request);
+                    ArticleRequest articleRequest = ArticleRequest.of(request.getBlogArticlePage(), request.getBlogArticleSize());
                     Mono<PostRequest> postRequestMono = createPostRequestMono(request);
-                    Mono<ArticleListResponse> articleListResponseMono = blogServiceImpl.retrieveArticleList(articleRequestMono).log();
                     Mono<PostListResponse> postListResponseMono = guestbookServiceImpl.retrievePostList(postRequestMono).log();
 
                     CompletableFuture<ArticleListResponse> articleListResponseFuture = CompletableFuture.supplyAsync(
-                            () -> articleListResponseMono.block()
+                            () -> blogServiceImpl.retrieveArticleList(articleRequest)
                     );
 
                     CompletableFuture<PostListResponse> postListResponseFuture = CompletableFuture.supplyAsync(
@@ -51,13 +50,6 @@ public class DisplayService {
                     return DisplayResponse.of(articleListResponse, postListResponse);
                 }
                 );
-    }
-
-    private static Mono<ArticleRequest> createArticleRequestMono(DisplayRequest request) {
-        return Mono.fromSupplier(
-                        () -> ArticleRequest.of(request.getBlogArticlePage(), request.getBlogArticleSize())
-                ).log()
-                .publishOn(boundedElastic()).log();
     }
 
     private static Mono<PostRequest> createPostRequestMono(DisplayRequest request) {

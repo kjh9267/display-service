@@ -1,41 +1,40 @@
 package me.jun.displayservice.core.infra;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jun.displayservice.core.application.BlogService;
 import me.jun.displayservice.core.application.dto.ArticleListResponse;
 import me.jun.displayservice.core.application.dto.ArticleRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService {
 
     private final WebClient.Builder blogWebClientBuilder;
 
-    private final String blogArticleUri;
+    @Value("#{${blog-article-uri}}")
+    private String blogArticleUri;
 
-    public BlogServiceImpl(
-            WebClient.Builder blogWebClientBuilder,
-            @Value("#{${blog-article-uri}}") String blogArticleUri
-    ) {
-        this.blogWebClientBuilder = blogWebClientBuilder;
-        this.blogArticleUri = blogArticleUri;
-    }
-
+    @Cacheable(
+            cacheNames = "blogArticles",
+            cacheManager = "redisCacheManager",
+            key = "#request.toString()"
+    )
     @Override
-    public Mono<ArticleListResponse> retrieveArticleList(Mono<ArticleRequest> requestMono) {
-        return requestMono.flatMap(
-                request -> blogWebClientBuilder.build()
-                        .get()
-                        .uri(String.format(blogArticleUri, request.getPage(), request.getSize()))
-                        .accept(APPLICATION_JSON)
-                        .retrieve()
-                        .bodyToMono(ArticleListResponse.class)
-                );
+    public ArticleListResponse retrieveArticleList(ArticleRequest request) {
+        return blogWebClientBuilder.build()
+                .get()
+                .uri(String.format(blogArticleUri, request.getPage(), request.getSize()))
+                .accept(APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(ArticleListResponse.class)
+                .block();
     }
 }

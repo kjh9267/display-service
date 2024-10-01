@@ -41,7 +41,7 @@ class DisplayServiceTest {
         DisplayResponse expected = displayResponse();
 
         given(blogServiceImpl.retrieveArticleList(any()))
-                .willReturn(Mono.just(articleListResponse()));
+                .willReturn(articleListResponse());
 
         given(guestbookServiceImpl.retrievePostList(any()))
                 .willReturn(Mono.just(postListResponse()));

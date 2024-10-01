@@ -11,6 +11,8 @@ import static me.jun.displayservice.support.GuestbookFixture.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 abstract public class DisplayFixture {
 
+    public static final int REDIS_PORT = 6379;
+
     public static DisplayRequest displayRequest() {
         return DisplayRequest.builder()
                 .blogArticlePage(BLOG_ARTICLE_PAGE)

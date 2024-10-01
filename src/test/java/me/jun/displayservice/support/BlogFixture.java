@@ -6,7 +6,7 @@ import me.jun.displayservice.core.application.dto.ArticleListResponse;
 import me.jun.displayservice.core.application.dto.ArticleRequest;
 import me.jun.displayservice.core.application.dto.ArticleResponse;
 
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -30,9 +30,9 @@ abstract public class BlogFixture {
 
     public static final String ARTICLE_CONTENT = "content string";
 
-    public static final Instant CREATED_AT = now();
+    public static final Date CREATED_AT = Date.from(now());
 
-    public static final Instant UPDATED_AT = now();
+    public static final Date UPDATED_AT = Date.from(now());
 
     public static ArticleResponse articleResponse() {
         return ArticleResponse.builder()
