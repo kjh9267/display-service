@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Profile("default")
 @LoadBalancerClient(
         name = "GUESTBOOK-SERVICE",
-        configuration = ServiceDiscoveryClientConfig.class
+        configuration = GuestbookServiceDiscoveryClientConfig.class
 )
 @Configuration
 @RequiredArgsConstructor

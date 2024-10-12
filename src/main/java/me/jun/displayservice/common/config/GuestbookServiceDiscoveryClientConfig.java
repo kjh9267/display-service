@@ -8,43 +8,35 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Flux;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-public class ServiceDiscoveryClientConfig {
+public class GuestbookServiceDiscoveryClientConfig {
 
     private final DiscoveryClient discoveryClient;
 
     @Bean
     public ServiceInstanceListSupplier guestbookServiceInstanceListSupplier() {
-        return new GuestbookServiceInstanceListSupplier(
-                Arrays.asList("BLOG-SERVICE", "GUESTBOOK-SERVICE")
-        );
+        return new GuestbookServiceInstanceListSupplier("GUESTBOOK-SERVICE");
     }
 
     private class GuestbookServiceInstanceListSupplier implements ServiceInstanceListSupplier {
 
-        private final List<String> serviceIds;
+        private final String serviceId;
 
-        private GuestbookServiceInstanceListSupplier(List<String> serviceIds) {
-            this.serviceIds = serviceIds;
+        public GuestbookServiceInstanceListSupplier(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         @Override
         public String getServiceId() {
-            return "";
+            return serviceId;
         }
 
         @Override
         public Flux<List<ServiceInstance>> get() {
-            List<ServiceInstance> instances = new ArrayList<>();
-
-            for (String serviceId : serviceIds) {
-                instances.addAll(discoveryClient.getInstances(serviceId));
-            }
+            List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
 
             return Flux.just(instances);
         }
