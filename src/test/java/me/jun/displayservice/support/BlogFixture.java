@@ -36,7 +36,7 @@ abstract public class BlogFixture {
 
     public static ArticleResponse articleResponse() {
         return ArticleResponse.builder()
-                .articleId(ARTICLE_ID)
+                .id(ARTICLE_ID)
                 .title(ARTICLE_TITLE)
                 .content(ARTICLE_CONTENT)
                 .createdAt(CREATED_AT)
@@ -48,7 +48,7 @@ abstract public class BlogFixture {
         return LongStream.rangeClosed(1, 10)
                 .mapToObj(
                         id -> articleResponse().toBuilder()
-                                .articleId(id)
+                                .id(id)
                                 .build()
                 )
                 .collect(Collectors.toList());

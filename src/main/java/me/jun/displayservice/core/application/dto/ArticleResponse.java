@@ -12,7 +12,7 @@ import java.util.Date;
 @Getter
 public class ArticleResponse {
 
-    private Long articleId;
+    private Long id;
 
     private String title;
 

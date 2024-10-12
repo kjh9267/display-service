@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 @LoadBalancerClient(
         name = "BLOG-SERVICE",
-        configuration = ServiceDiscoveryClientConfig.class
+        configuration = BlogServiceDiscoveryClientConfig.class
 )
 public class BlogWebClientConfig {
 
