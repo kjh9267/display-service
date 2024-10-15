@@ -1,5 +1,6 @@
 package me.jun.displayservice.core.infra;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jun.displayservice.core.application.GuestbookService;
@@ -27,6 +28,7 @@ public class GuestbookServiceImpl implements GuestbookService {
             cacheManager = "redisCacheManager",
             key = "#request.toString()"
     )
+    @CircuitBreaker(name = "guestbookServiceCircuitBreaker")
     @Override
     public PostListResponse retrievePostList(PostRequest request) {
         return guestbookWebClientBuilder.build()
