@@ -1,5 +1,6 @@
 package me.jun.displayservice.core.infra;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jun.displayservice.core.application.BlogService;
@@ -27,6 +28,7 @@ public class BlogServiceImpl implements BlogService {
             cacheManager = "redisCacheManager",
             key = "#request.toString()"
     )
+    @CircuitBreaker(name = "blogServiceCircuitBreaker")
     @Override
     public ArticleListResponse retrieveArticleList(ArticleRequest request) {
         return blogWebClientBuilder.build()

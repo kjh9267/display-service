@@ -2,6 +2,7 @@ package me.jun.displayservice.core.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import me.jun.displayservice.core.application.BlogService;
 import me.jun.displayservice.core.application.dto.ArticleListResponse;
 import okhttp3.mockwebserver.MockResponse;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import redis.embedded.RedisServer;
 
@@ -19,13 +21,16 @@ import java.io.IOException;
 import static me.jun.displayservice.support.BlogFixture.*;
 import static me.jun.displayservice.support.DisplayFixture.REDIS_PORT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ActiveProfiles("test")
 @SpringBootTest(properties = "spring.cloud.config.enabled=false")
 @SuppressWarnings("deprecation")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class BlogServiceImplTest {
 
     @Autowired
@@ -70,5 +75,28 @@ class BlogServiceImplTest {
 
         assertThat(articleListResponse)
                 .isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    void circuitBreakerTest() {
+        MockResponse mockResponse = new MockResponse()
+                .setResponseCode(BAD_REQUEST.value());
+
+        mockWebServer.url(BLOG_BASE_URL);
+
+        for (int count = 0; count < 100; count++) {
+            mockWebServer.enqueue(mockResponse);
+            try {
+                blogServiceImpl.retrieveArticleList(articleRequest());
+            }
+            catch (Exception e) {
+            }
+        }
+
+        mockWebServer.enqueue(mockResponse);
+        assertThrows(
+                CallNotPermittedException.class,
+                () -> blogServiceImpl.retrieveArticleList(articleRequest())
+        );
     }
 }
