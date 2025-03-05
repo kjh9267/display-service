@@ -2,12 +2,12 @@ package me.jun.displayservice.core.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.jun.displayservice.core.application.dto.*;
+import me.jun.displayservice.core.application.dto.ArticleRequest;
+import me.jun.displayservice.core.application.dto.DisplayRequest;
+import me.jun.displayservice.core.application.dto.DisplayResponse;
+import me.jun.displayservice.core.application.dto.PostRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
@@ -19,33 +19,18 @@ public class DisplayService {
     private final GuestbookService guestbookServiceImpl;
 
     public Mono<DisplayResponse> retrieveDisplay(Mono<DisplayRequest> requestMono) {
-        return requestMono.map(
+        return requestMono.flatMap(
                 request -> {
                     ArticleRequest articleRequest = ArticleRequest.of(request.getBlogArticlePage(), request.getBlogArticleSize());
                     PostRequest postRequest = PostRequest.of(request.getGuestbookPostPage(), request.getGuestbookPostSize());
 
-                    CompletableFuture<ArticleListResponse> articleListResponseFuture = CompletableFuture.supplyAsync(
-                            () -> blogServiceImpl.retrieveArticleList(articleRequest)
-                    );
-
-                    CompletableFuture<PostListResponse> postListResponseFuture = CompletableFuture.supplyAsync(
-                            () -> guestbookServiceImpl.retrievePostList(postRequest)
-                    );
-
-                    ArticleListResponse articleListResponse;
-                    PostListResponse postListResponse;
-
-                    try {
-                        articleListResponse = articleListResponseFuture.get();
-                        postListResponse = postListResponseFuture.get();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    } catch (ExecutionException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    return DisplayResponse.of(articleListResponse, postListResponse);
-                }
-                );
+                    return blogServiceImpl.retrieveArticleList(articleRequest)
+                            .flatMap(articleListResponse ->
+                                guestbookServiceImpl.retrievePostList(postRequest)
+                                        .map(postListResponse ->
+                                                DisplayResponse.of(articleListResponse, postListResponse)
+                                        )
+                            );
+                });
     }
 }
