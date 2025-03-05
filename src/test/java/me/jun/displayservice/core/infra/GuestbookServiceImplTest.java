@@ -70,7 +70,7 @@ class GuestbookServiceImplTest {
         mockWebServer.url(GUESTBOOK_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
-        PostListResponse postListResponse = guestbookServiceImpl.retrievePostList(postRequest());
+        PostListResponse postListResponse = guestbookServiceImpl.retrievePostList(postRequest()).block();
 
         assertThat(postListResponse)
                 .isEqualToComparingFieldByField(expected);
@@ -86,7 +86,8 @@ class GuestbookServiceImplTest {
         for (int count = 0; count < 100; count++) {
             mockWebServer.enqueue(mockResponse);
             try {
-                guestbookServiceImpl.retrievePostList(postRequest());
+                guestbookServiceImpl.retrievePostList(postRequest())
+                        .block();
             }
             catch (Exception e) {
             }
@@ -96,6 +97,7 @@ class GuestbookServiceImplTest {
         assertThrows(
                 CallNotPermittedException.class,
                 () -> guestbookServiceImpl.retrievePostList(postRequest())
+                        .block()
         );
     }
 }

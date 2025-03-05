@@ -41,10 +41,10 @@ class DisplayServiceTest {
         DisplayResponse expected = displayResponse();
 
         given(blogServiceImpl.retrieveArticleList(any()))
-                .willReturn(articleListResponse());
+                .willReturn(Mono.just(articleListResponse()));
 
         given(guestbookServiceImpl.retrievePostList(any()))
-                .willReturn(postListResponse());
+                .willReturn(Mono.just(postListResponse()));
 
         assertThat(displayService.retrieveDisplay(Mono.just(displayRequest())).block())
                 .isEqualToComparingFieldByField(expected);

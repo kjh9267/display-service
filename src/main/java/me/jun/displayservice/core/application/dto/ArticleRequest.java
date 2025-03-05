@@ -21,6 +21,6 @@ public class ArticleRequest {
 
     @Override
     public String toString() {
-        return String.format("%s %s", page, size);
+        return String.format("articles:%d:%d", page, size);
     }
 }

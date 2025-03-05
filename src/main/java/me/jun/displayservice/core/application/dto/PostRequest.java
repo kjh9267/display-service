@@ -21,6 +21,6 @@ public class PostRequest {
 
     @Override
     public String toString() {
-        return String.format("%s %s", page, size);
+        return String.format("posts:%d:%d", page, size);
     }
 }

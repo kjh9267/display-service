@@ -71,7 +71,7 @@ class BlogServiceImplTest {
         mockWebServer.url(BLOG_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
-        ArticleListResponse articleListResponse = blogServiceImpl.retrieveArticleList(articleRequest());
+        ArticleListResponse articleListResponse = blogServiceImpl.retrieveArticleList(articleRequest()).block();
 
         assertThat(articleListResponse)
                 .isEqualToComparingFieldByField(expected);
@@ -87,7 +87,8 @@ class BlogServiceImplTest {
         for (int count = 0; count < 100; count++) {
             mockWebServer.enqueue(mockResponse);
             try {
-                blogServiceImpl.retrieveArticleList(articleRequest());
+                blogServiceImpl.retrieveArticleList(articleRequest())
+                        .block();
             }
             catch (Exception e) {
             }
@@ -97,6 +98,7 @@ class BlogServiceImplTest {
         assertThrows(
                 CallNotPermittedException.class,
                 () -> blogServiceImpl.retrieveArticleList(articleRequest())
+                        .block()
         );
     }
 }
