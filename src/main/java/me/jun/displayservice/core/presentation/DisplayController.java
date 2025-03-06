@@ -41,7 +41,7 @@ public class DisplayController {
                         .guestbookPostSize(guestbookPostSize)
                         .build()
                 ).log()
-                .publishOn(Schedulers.boundedElastic()).log();
+                .publishOn(Schedulers.parallel()).log();
 
         return displayService.retrieveDisplay(requestMono).log()
                 .map(
